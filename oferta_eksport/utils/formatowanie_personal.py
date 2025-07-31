@@ -12,7 +12,7 @@ def write_formatted_df_to_excel(df, writer, sheet_name):
     # === Dodawanie hiperłączy: tekst z kolumny E, URL z kolumny AG ===
     try:
         col_text_idx = 4   # kolumna E
-        col_url_idx  = 32  # kolumna AG
+        col_url_idx  = 33  # kolumna AG
 
         col_text = df.columns[col_text_idx]
         col_url  = df.columns[col_url_idx]
@@ -59,7 +59,7 @@ def write_formatted_df_to_excel(df, writer, sheet_name):
             if pd.isna(val):
                 val = ''
 
-            is_orange_col = 15 <= col_idx <= 29
+            is_orange_col = 15 <= col_idx <= 30
             is_numeric = col in numeric_cols
 
             if is_orange_col:

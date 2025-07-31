@@ -29,6 +29,8 @@ class PolaczenieOracle:
         self.connection.close()
 
     def wywolaj_query(self, sql_query):
+        self.cursor.execute("ALTER SESSION SET NLS_TERRITORY = 'POLAND'")
+
         self.cursor.execute(sql_query)
         data = self.cursor.fetchall()
         col_names = [

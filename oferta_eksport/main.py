@@ -17,7 +17,6 @@ def generuj_raport():
     oracle = PolaczenieOracle()
     try:
         oracle.otworz_polaczenie()
-        
         for lang, lang_config in config['wersje_jezykowe'].items():
             # Wczytanie zapytania SQL
             with open(lang_config['sql_file'], 'r', encoding="utf-8-sig") as f:
@@ -25,7 +24,6 @@ def generuj_raport():
             # print(repr(query))
             # Wykonanie zapytania
             oracle.wywolaj_query(query)
-            
             # Generowanie ścieżki
             sciezka_wyjsciowa = os.path.join(
                 config['base_dir'],

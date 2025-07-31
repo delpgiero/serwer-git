@@ -1,0 +1,1 @@
+folder ze skryptami polaczony poprzez repo github patryka
