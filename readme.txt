@@ -1,1 +1,1 @@
-folder ze skryptami polaczony poprzez repo github patryka
+folder ze skryptami polaczony poprzez repo github patryka hahaha
