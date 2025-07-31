@@ -1,0 +1,13 @@
+base_dir: C:\Users\analizy_\OneDrive - MARCOPOL Sp. z o.o. Producent Śrub\Export - Baza_oferty
+output_filename_template: Baza_oferta_uniwersalna_{sufix}_{date}.xlsx
+
+wersje_jezykowe:
+  EN:
+    sql_file: sql/en.sql
+    arkusz: Marcopol offer details
+    sufix: EN
+  
+  DE:
+    sql_file: sql/de.sql
+    arkusz: Marcopol Angebot Details
+    sufix: DE
