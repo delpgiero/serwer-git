@@ -1,5 +1,5 @@
-# base_dir: C:\Users\analizy_\OneDrive - MARCOPOL Sp. z o.o. Producent Śrub\Export - Baza_oferty
-base_dir: C:\Users\patryk.gajda\Projekty\serwer_git
+base_dir: C:\Users\analizy_\OneDrive - MARCOPOL Sp. z o.o. Producent Śrub\Export - Baza_oferty
+# base_dir: C:\Users\patryk.gajda\Projekty\serwer_git
 output_filename_template: Baza_oferta_uniwersalna_{sufix}_{date}.xlsx
 
 wersje_jezykowe:

@@ -1,2 +1,2 @@
-cd C:\Skrypty\oferta_eksport
+cd C:\Produkcyjne\serwer-git\oferta_eksport
 python main.py
