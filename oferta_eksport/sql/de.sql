@@ -6,7 +6,7 @@
     etykieta_de LINK_ZUM_PRODUKT,
     b.norma norm,
     b.krozmiar ABMESSUNG,
-    k.de made_of_material,
+    Z.de made_of_material,
     b.klasa KLASSE_DER_MECHANISCHEN_EIGENSCHAFTEN  ,
     j.de BESCHICHTUNG,
     l.de Antrieb,
@@ -19,39 +19,39 @@
     waga_1000_sztuk CA_GEWICHT_VON_1000_STÜCK,
     CASE WHEN SUBSTR(a.material,-1,1) != 'K' THEN CEIL(1 /(waga_1000_sztuk / 1000))
               WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END CA_MENGE_STÜCK_PRO_KG,
-    CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END TOWAR_WYPRODUKOWANY_MARCOPOL,
+    CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END TOWAR_WYPRODUKOWANY_MARCOPOL,
     SUM(CASE WHEN F.LGORT = '0' THEN QTY ELSE 0 END) LAGERMENGE_0,
     SUM(CASE WHEN F.LGORT = '10' THEN QTY ELSE 0 END) LAGERMENGE_10,
     SUM(CASE WHEN F.LGORT = '99' THEN QTY ELSE 0 END) LAGERMENGE_99,
     SUM(CASE WHEN F.LGORT = '6' THEN QTY ELSE 0 END) LAGERMENGE_6,
     SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) LAGERMENGE_ALLE,
-    ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-    SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2) C_B_PLN,
-    ROUND((ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2)) /
+        ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+    SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) C_B_PLN,
+    ROUND((ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)) /
         (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) C_B_EUR,
-    ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2)
+    ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)
         WHEN A.JM = 'KG' THEN  (1000 / CASE WHEN SUBSTR(a.material,-1,1) != 'K' THEN CEIL(1 /(waga_1000_sztuk / 1000))
-        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2) 
-        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2) * 1000 END,2) PRZELICZENIE_C_B_ZA_1000SZT_PLN,
-    ROUND(ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2)
+        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) 
+        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) * 1000 END,2) PRZELICZENIE_C_B_ZA_1000SZT_PLN,                    
+    ROUND(ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)
         WHEN A.JM = 'KG' THEN  (1000 / CASE WHEN SUBSTR(a.material,-1,1) != 'K' THEN CEIL(1 /(waga_1000_sztuk / 1000))
-        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2) 
-        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, h.C_MIN)),2) * 1000 END,2) /  (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) PRZELICZENIE_C_B_ZA_1000SZT_EUR,
+        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) 
+        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
+        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) * 1000 END,2) /  (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) PRZELICZENIE_C_B_ZA_1000SZT_EUR,   
     NULL MARZA,
     ROUND((SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),4) KURS,
     H.C_MIN CENA_MINIMALNA,
@@ -131,32 +131,33 @@ FROM
                             C.ILOSCOJ
                         ) I ON a.material = i.material AND E.ILOSCOJ = I.ILOSCOJ
     LEFT JOIN dane_pim_zkatalog_slownik_pokrycie J ON B.COATING_PL = J.PL
-    LEFT JOIN dane_pim_zkatalog_slownik_material K ON b.made_of_material_pl = k.PL
+    LEFT JOIN dane_pim_zkatalog_slownik_material Z ON b.made_of_material_pl = Z.PL
     LEFT JOIN dane_pim_zkatalog_slownik_wglebienie L ON b.rodzaj_wglebienia = l.PL
-    
-        LEFT JOIN (SELECT 
-                                A.MATNR, 
-                                ILOSCOJ, 
-                                LGORT, 
-                                QTY, 
-                                CASE WHEN A.CHARG LIKE '%PR' THEN 'X' END PRODUKCJA, 
-                                c_min
-                            FROM 
-                                OLAP_DANE.STAN_ZATP0 a
-                                LEFT JOIN OLAP_DANE.ZKATALOG2 B ON A.MATNR = B.MATNR AND A.CHARG = B.CHARG
-                                LEFT JOIN (SELECT 
-                                                        matnr material, 
-                                                        charg partia, 
-                                                        c_min
-                                                    FROM 
-                                                        Olap_dane.sap_ceny_minimalne_historia
-                                                    WHERE 
-                                                        TO_DATE(SYSDATE) BETWEEN TO_DATE(data_od,'yyyymmdd') AND TO_DATE(data_do,'yyyymmdd')
-                                                ) c on a.matnr = c.material and a.charg = c.partia
-                            WHERE 
-                                LGORT IN ('0', '10', '99', '6')
-                                AND qty > 0
-                        ) F ON A.MATERIAL = F.MATNR AND E.ILOSCOJ = F.ILOSCOJ AND NVL(F.PRODUKCJA,'NIE') = NVL(CASE WHEN A.PARTIA LIKE '%PR' THEN 'X' END, 'NIE') AND h.c_min = f.c_min
+    LEFT JOIN MATERIALY_PROD_WNWIT K ON A.MATERIAL = K.MATERIAL AND A.PARTIA = K.PARTIA
+    LEFT JOIN (SELECT 
+                            A.MATNR, 
+                            ILOSCOJ, 
+                            LGORT, 
+                            QTY, 
+                            CASE WHEN D.MATERIAL IS NOT NULL THEN 'X' END PRODUKCJA, 
+                            c_min
+                        FROM 
+                            OLAP_DANE.STAN_ZATP0 a
+                            LEFT JOIN OLAP_DANE.ZKATALOG2 B ON A.MATNR = B.MATNR AND A.CHARG = B.CHARG
+                            LEFT JOIN (SELECT 
+                                                    matnr material, 
+                                                    charg partia, 
+                                                    c_min
+                                                FROM 
+                                                    Olap_dane.sap_ceny_minimalne_historia
+                                                WHERE 
+                                                    TO_DATE(SYSDATE) BETWEEN TO_DATE(data_od,'yyyymmdd') AND TO_DATE(data_do,'yyyymmdd')
+                                            ) c on a.matnr = c.material and a.charg = c.partia
+                            LEFT JOIN MATERIALY_PROD_WNWIT D ON A.MATNR = D.MATERIAL AND A.CHARG = D.PARTIA
+                        WHERE 
+                            LGORT IN ('0', '10', '99', '6')
+                            AND qty > 0
+                    ) F ON A.MATERIAL = F.MATNR AND E.ILOSCOJ = F.ILOSCOJ AND NVL(F.PRODUKCJA,'NIE') = NVL(CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, 'NIE') AND h.c_min = f.c_min
     
     
 WHERE
@@ -172,7 +173,7 @@ GROUP BY
     a.nazwa_materialu,
     b.norma,
     b.krozmiar,
-    k.de,
+    Z.de,
     b.klasa,
     J.DE,
     A.JM,
@@ -193,6 +194,7 @@ ilosc_w_kg,
     l.de,
     etykieta_de,
     E.AKTYWNY,
-    A.PARTIA
+    A.PARTIA,
+    K.MATERIAL
 ORDER BY
     MATERIAL, E.ILOSCOJ
