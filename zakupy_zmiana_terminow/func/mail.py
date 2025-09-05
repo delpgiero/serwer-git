@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import pandas as pd
+import time
 
 # from pretty_html_table import build_table
 
@@ -46,8 +47,8 @@ def WyslijMaila(df_1, email):
     today = date.today()
     sender_email = 'analizy_@marcopol.pl'
     sender_password = 'analizy1'
-    # receiver_email = f"[{email}]"
-    receiver_email = ['patryk.gajda@marcopol.pl']
+    receiver_email = f"[{email}]"
+    # receiver_email = ['patryk.gajda@marcopol.pl']
     subject = f'Zmiana terminu realizacji zamówienia w dniu: {today}'
     message = f"""
     <!DOCTYPE html>
@@ -83,17 +84,21 @@ def WyslijMaila(df_1, email):
     msg['From'] = sender_email
     msg['To'] = ', '.join(receiver_email)
     msg['Subject'] = subject
+    msg['Bcc'] = 'patryk.gajda@marcopol.pl'
     msg.attach(MIMEText(message, 'html'))
-
-    try:
-        server = smtplib.SMTP('smtp.office365.com', 587)
-        server.ehlo()
-        server.starttls()
-        server.login(sender_email, sender_password)
-        text = msg.as_string()
-        server.sendmail(sender_email, receiver_email, text)
-        server.quit()
-        print('Mail zostal wyslany')
-    except Exception as e:
-        # pass
-        print('Wystapil blad podczas wysylania: ', e)
+    wyslano = False
+    while not wyslano:
+        try:
+            server = smtplib.SMTP('smtp.office365.com', 587)
+            server.ehlo()
+            server.starttls()
+            server.login(sender_email, sender_password)
+            text = msg.as_string()
+            server.sendmail(sender_email, receiver_email, text)
+            server.quit()
+            print('Mail zostal wyslany')
+            wyslano = True
+        except Exception as e:
+            # pass
+            print('Wystapil blad podczas wysylania: ', e)
+            time.sleep(5)
