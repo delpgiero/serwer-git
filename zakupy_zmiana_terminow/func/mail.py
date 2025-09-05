@@ -47,7 +47,7 @@ def WyslijMaila(df_1, email):
     today = date.today()
     sender_email = 'analizy_@marcopol.pl'
     sender_password = 'analizy1'
-    receiver_email = f"[{email}]"
+    receiver_email = f"{email}"
     # receiver_email = ['patryk.gajda@marcopol.pl']
     subject = f'Zmiana terminu realizacji zamówienia w dniu: {today}'
     message = f"""
@@ -82,9 +82,9 @@ def WyslijMaila(df_1, email):
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
-    msg['To'] = ', '.join(receiver_email)
+    msg['To'] = email
     msg['Subject'] = subject
-    msg['Bcc'] = 'patryk.gajda@marcopol.pl'
+    # msg['Bcc'] = 'patryk.gajda@marcopol.pl'
     msg.attach(MIMEText(message, 'html'))
     wyslano = False
     while not wyslano:
