@@ -25,33 +25,16 @@ SELECT DISTINCT
     SUM(CASE WHEN F.LGORT = '99' THEN QTY ELSE 0 END) STOCK_99,
     SUM(CASE WHEN F.LGORT = '6' THEN QTY ELSE 0 END) STOCK_6,
     SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) STOCK_ALL,
-    ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-    SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) C_B_PLN,
-    ROUND((ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)) /
-        (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) C_B_EUR,
-    ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)
+    NVL(g.cena_bazowa,0) C_B_PLN,
+    NVL(ROUND(NVL(g.cena_bazowa,0) / (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2),0) C_B_EUR,
+    ROUND(CASE WHEN A.JM = 'TYS' THEN NVL(g.cena_bazowa,0)
         WHEN A.JM = 'KG' THEN  (1000 / CASE WHEN SUBSTR(a.material,-1,1) != 'K' THEN CEIL(1 /(waga_1000_sztuk / 1000))
-        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) 
-        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) * 1000 END,2) PRZELICZENIE_C_B_ZA_1000SZT_PLN,                    
-    ROUND(ROUND(CASE WHEN A.JM = 'TYS' THEN ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2)
+        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * NVL(g.cena_bazowa,0)
+        ELSE NVL(g.cena_bazowa,0) * 1000 END,2) PRZELICZENIE_C_B_ZA_1000SZT_PLN,                    
+    ROUND(CASE WHEN A.JM = 'TYS' THEN NVL(g.cena_bazowa,0)
         WHEN A.JM = 'KG' THEN  (1000 / CASE WHEN SUBSTR(a.material,-1,1) != 'K' THEN CEIL(1 /(waga_1000_sztuk / 1000))
-        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) 
-        ELSE ROUND(DECODE(SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN),0,G.CENA_BAZOWA,
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END) * G.CENA_BAZOWA) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN) /
-        SUM(SUM(CASE WHEN F.LGORT IN ('0', '10', '99', '6') THEN QTY ELSE 0 END)) OVER (PARTITION BY a.material, e.iloscoj, CASE WHEN K.MATERIAL IS NOT NULL THEN 'X' END, h.C_MIN)),2) * 1000 END,2) /  (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) PRZELICZENIE_C_B_ZA_1000SZT_EUR,                
+        WHEN SUBSTR(a.material,-1,1) = 'K' THEN ilosc_w_kg END) * NVL(g.cena_bazowa,0)
+        ELSE NVL(g.cena_bazowa,0) * 1000 END /  (SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),2) PRZELICZENIE_C_B_ZA_1000SZT_EUR,                
     NULL MARZA,
     ROUND((SELECT UKURS * 0.98 KURS FROM olap_dane.KURSY_WALUT A WHERE FCURR = 'EUR' ORDER BY DATA DESC FETCH FIRST 1 ROWS ONLY),4) KURS,
     h.C_MIN CENA_MINIMALNA,
@@ -96,14 +79,32 @@ FROM
                     ) D ON a.material = d.material
     LEFT JOIN OLAP_DANE.ZKATALOG2 E ON A.MATERIAL = E.MATNR AND A.PARTIA = E.CHARG
     LEFT JOIN (SELECT 
-                            MATERIAL, 
-                            PARTIA, 
-                            CENA CENA_BAZOWA 
-                       FROM 
-                            promocja_ceny
-                    WHERE 
+                            MATERIAL,
+                            ILOSCOJ,
+                            CASE 
+                                WHEN SUM(ILOSC) = 0 OR SUM(ILOSC) IS NULL THEN 0
+                                ELSE ROUND(SUM(CENA * ILOSC) / SUM(ILOSC), 2)
+                            END AS CENA_BAZOWA
+                                               FROM 
+                                                    promocja_ceny a
+                                                    LEFT JOIN OLAP_DANE.ZKATALOG2 C ON A.MATERIAL = C.MATNR AND A.PARTIA = C.CHARG
+                                                    LEFT JOIN (SELECT 
+                                                                            A.MATNR, A.CHARG, SUM(QTY) ILOSC 
+                                                                        FROM OLAP_DANE.STAN_ZATP0 A
+                                                                            LEFT JOIN OLAP_DANE.ZKATALOG2 B ON A.BISMT = b.indeks
+                                                                        WHERE 
+                                                                            LGORT IN ('0', '10', '99', '6')
+                                                                        GROUP BY A.MATNR, A.CHARG) B ON A.MATERIAL = B.MATNR AND A.PARTIA = B.CHARG
+                        
+                        WHERE 
                             TO_CHAR(sysdate,'yyyymmdd') between data_od and data_do
-                        ) G ON A.MATERIAL = G.MATERIAL AND A.PARTIA = G.PARTIA
+                        having CASE 
+                                WHEN SUM(ILOSC) = 0 OR SUM(ILOSC) IS NULL THEN 0
+                                ELSE ROUND(SUM(CENA * ILOSC) / SUM(ILOSC), 2)
+                            END > 0
+                        GROUP BY 
+                            MATERIAL, ILOSCOJ
+                        ) G ON A.MATERIAL = G.MATERIAL AND g.iloscoj = e.iloscoj
     LEFT JOIN (SELECT 
                             matnr material, 
                             charg partia, 
