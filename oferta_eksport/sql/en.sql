@@ -10,6 +10,7 @@ SELECT DISTINCT
     b.klasa class_of_mechanical_properties,
     b.coating_en coating,
     J.ENG recess,
+    CASE WHEN E.znakbud = 'CE' THEN 'CE' END CERTIFICATE,
     e.iloscoj quantity_in_packing_pcs_or_kg,
     CASE WHEN A.JM = 'TYS' THEN 'THS'
               WHEN A.JM = 'SZT' THEN 'PCS'
@@ -194,6 +195,7 @@ GROUP BY
    ETYKIETA_EN,
    e.aktywny,
    a.partia,
-   K.MATERIAL
+   K.MATERIAL,
+   E.ZNAKBUD
 ORDER BY
     MATERIAL, E.ILOSCOJ

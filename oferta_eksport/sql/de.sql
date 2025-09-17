@@ -10,6 +10,7 @@
     b.klasa KLASSE_DER_MECHANISCHEN_EIGENSCHAFTEN  ,
     j.de BESCHICHTUNG,
     l.de Antrieb,
+    CASE WHEN E.znakbud = 'CE' THEN 'CE' END CERTIFICATE,
     e.iloscoj VERPACKUNGSMENGE_STÜCK_ODER_KG,
         CASE WHEN A.JM = 'TYS' THEN 'TSD'
               WHEN A.JM = 'SZT' THEN 'STK'
@@ -205,6 +206,7 @@ ilosc_w_kg,
     etykieta_de,
     E.AKTYWNY,
     A.PARTIA,
-    K.MATERIAL
+    K.MATERIAL,
+    E.ZNAKBUD
 ORDER BY
     MATERIAL, E.ILOSCOJ
