@@ -41,30 +41,38 @@ class PolaczenieOracle:
     def wgraj_do_bazy(self, df):
         self.res = []
         data = [tuple(x) for x in df.values]
-        # Tworzenie placeholderów do zapytania SQL
-        placeholders = ", ".join([":" + str(i + 1) for i in range(len(df.columns))])
-        batch_size = 10000
-        # Iteracja przez dane w partiach
-        for i in range(0, len(data), batch_size):
-            batch = data[i : i + batch_size]
-            for row in batch:
-                try:
-                    # Próba wstawienia pojedynczego wiersza
-                    self.cursor.execute(
-                        f"INSERT INTO {self.tabela} ({', '.join(df.columns)}) VALUES ({placeholders})",
-                        row,
-                    )
-                    self.res.append(1)
-                except Exception as e:
-                    self.res.append(0)
-                    # Ignorowanie błędu unikalności
-                    if "unique constraint" in str(e).lower():
 
-                        continue
-                    else:
-                        # Przerzucenie innych błędów
-                        raise e
+        # Placeholdery w stylu Oracle (:1, :2, ...)
+        placeholders = ", ".join([":" + str(i + 1) for i in range(len(df.columns))])
+
+        try:
+            self.cursor.executemany(
+                f"INSERT INTO {self.tabela} ({', '.join(df.columns)}) VALUES ({placeholders})",
+                data,
+            )
             self.connection.commit()
+            # Jeśli wszystkie inserty się powiodły:
+            self.res = [1] * len(data)
+        except Exception as e:
+            # Przy executemany błędy trzeba obsłużyć trochę inaczej
+            if "unique constraint" in str(e).lower():
+                # fallback do row-by-row jeśli musisz ignorować duplikaty
+                for row in data:
+                    try:
+                        self.cursor.execute(
+                            f"INSERT INTO {self.tabela} ({', '.join(df.columns)}) VALUES ({placeholders})",
+                            row,
+                        )
+                        self.res.append(1)
+                    except Exception as e2:
+                        if "unique constraint" in str(e2).lower():
+                            self.res.append(0)
+                            continue
+                        else:
+                            raise e2
+                self.connection.commit()
+            else:
+                raise e
 
     def usun_dane_tabela(self):
         sql_query = f"DELETE FROM {self.tabela}"
