@@ -13,7 +13,7 @@ SELECT distinct
     
 FROM 
     olap_dane.mv_sap_zamow A
-    left join olap_dane.mv_sap_mara B on a.material = b.material
+    left join olap_dane.mv_sap_mara B on a.material = b.material and a.partia = b.partia
     left join olap_dane.mv_sap_ph C on SUBSTR(ZLECAJACY, -4) = substr(c.pernr,5,4)
     left join zamowienia_terminy_realizacji D on a.nr_zamow = d.nr_zamow and a.material = d.material and a.lp_zamow = d.lp_zamow
     left join ZAPYTANIE_TOWAR_PRZYPISANIE e on a.nrzap = e.sygnatura
