@@ -64,4 +64,4 @@ writer.close()
 
 
 WyslijMaila(today, path, df_baza, TODAY)
-# os.remove(path)  # Usuwa plik XLSX po wysłaniu maila
+os.remove(path)  # Usuwa plik XLSX po wysłaniu maila
