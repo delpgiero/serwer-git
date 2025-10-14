@@ -5,6 +5,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import pandas as pd
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 
 # from pretty_html_table import build_table
 
@@ -64,9 +67,21 @@ def build_table(df, theme, title):
 
 
 def WyslijMaila(today, path, df_1, kwartal):
+    env_paths = [
+        Path(r"C:\Users\patryk.gajda\Projekty\Testowy\.env"),
+        Path(r"C:\Produkcyjne\.env")
+    ]
+    
+
+    for env_path in env_paths:
+        if env_path.exists():
+            load_dotenv(dotenv_path=env_path)
+            break
+
+        
     today = date.today()
-    sender_email = 'analizy_@marcopol.pl'
-    sender_password = 'analizy1'
+    sender_email = os.getenv("EMAIL_ANALIZY")
+    sender_password = os.getenv("EMAIL_PASSWORD")
     receiver_email = ['wtorek.m@marcopol.pl', 'blonski.k@marcopol.pl']
     # receiver_email = ['patryk.gajda@marcopol.pl']
     subject = f'Dane Majster cennik M24 Marcopol: {today}'

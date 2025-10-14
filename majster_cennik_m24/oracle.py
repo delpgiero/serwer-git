@@ -2,12 +2,21 @@ import cx_Oracle
 import pandas as pd
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
 
 class PolaczenieOracle:
     def __init__(self, tabela=None) -> None:
-        env_path = r".env"
-        load_dotenv(dotenv_path=env_path)
+        env_paths = [
+            Path(r"C:\Users\patryk.gajda\Projekty\Testowy\.env"),
+            Path(r"C:\Produkcyjne\.env")
+        ]
+        
+        
+        for env_path in env_paths:
+            if env_path.exists():
+                load_dotenv(dotenv_path=env_path)
+                break
         self.IP = os.getenv("ORACLE_IP")
         self.PORT = os.getenv("ORACLE_PORT")
         self.SERVICE_NAME = os.getenv("ORACLE_SERVICE_NAME")
